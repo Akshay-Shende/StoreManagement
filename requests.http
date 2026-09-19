@@ -1,0 +1,27 @@
+@host = http://localhost:5240
+
+### Health
+GET {{host}}/health
+
+### Categories
+GET {{host}}/api/categories
+
+### Products
+GET {{host}}/api/products
+
+### Low stock
+GET {{host}}/api/inventory/low-stock
+
+### Expiring within 30 days
+GET {{host}}/api/inventory/expiring?days=30
+
+### Dashboard
+GET {{host}}/api/dashboard
+
+### AI POC - low stock
+POST {{host}}/api/ai/chat
+Content-Type: application/json
+
+{
+  "message": "What should I reorder?"
+}

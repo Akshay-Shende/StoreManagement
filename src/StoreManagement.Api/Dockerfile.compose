@@ -1,0 +1,2 @@
+# Build context is repository root:
+# docker build -f src/StoreManagement.Api/Dockerfile .

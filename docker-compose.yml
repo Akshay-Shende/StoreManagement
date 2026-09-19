@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:18
+    container_name: store-management-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: store_management
+      POSTGRES_USER: store_app
+      POSTGRES_PASSWORD: store_app
+    ports:
+      - "5432:5432"
+    volumes:
+      - store-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U store_app -d store_management"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  store-postgres-data:
