@@ -5,7 +5,7 @@ using StoreManagement.Application.Interfaces;
 namespace StoreManagement.Api.Controllers;
 
 [ApiController]
-[Route("api/ai")]
+[Route("api/v1/ai")]
 public sealed class AiController(IAiAssistantService service) : ControllerBase
 {
     [HttpPost("chat")]

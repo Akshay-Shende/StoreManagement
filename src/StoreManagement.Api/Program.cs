@@ -10,6 +10,16 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddProblemDetails();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new Microsoft.OpenApi.OpenApiInfo
+    {
+        Title = "Store Management API",
+        Version = "v1",
+        Description = "API for managing store inventory, sales, purchases, and more."
+    });
+});
 
 var connectionString = builder.Configuration.GetConnectionString("StoreDb")
     ?? throw new InvalidOperationException("ConnectionStrings:StoreDb is missing.");
@@ -36,6 +46,13 @@ builder.Services.AddScoped<IAiAssistantService, AiAssistantService>();
 var app = builder.Build();
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
+app.UseSwagger();
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Store Management API v1");
+    // Empty RoutePrefix = Swagger UI loads at root URL, avoids IIS /swagger virtual-app conflict
+    c.RoutePrefix = string.Empty;
+});
 app.UseHttpsRedirection();
 app.MapControllers();
 app.MapGet("/health", () => Results.Ok(new { status = "ok" }));

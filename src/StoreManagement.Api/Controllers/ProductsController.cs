@@ -5,7 +5,7 @@ using StoreManagement.Application.Interfaces;
 namespace StoreManagement.Api.Controllers;
 
 [ApiController]
-[Route("api/products")]
+[Route("api/v1/products")]
 public sealed class ProductsController(IProductService service) : ControllerBase
 {
     [HttpGet]

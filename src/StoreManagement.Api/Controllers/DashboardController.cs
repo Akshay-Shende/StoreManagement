@@ -5,7 +5,7 @@ using StoreManagement.Application.Interfaces;
 namespace StoreManagement.Api.Controllers;
 
 [ApiController]
-[Route("api/dashboard")]
+[Route("api/v1/dashboard")]
 public sealed class DashboardController(IDashboardService service) : ControllerBase
 {
     [HttpGet]

@@ -6,7 +6,7 @@ using StoreManagement.Domain.Enums;
 namespace StoreManagement.Api.Controllers;
 
 [ApiController]
-[Route("api/inventory")]
+[Route("api/v1/inventory")]
 public sealed class InventoryController(IInventoryService service) : ControllerBase
 {
     [HttpGet]

@@ -5,7 +5,7 @@ using StoreManagement.Application.Interfaces;
 namespace StoreManagement.Api.Controllers;
 
 [ApiController]
-[Route("api/categories")]
+[Route("api/v1/categories")]
 public sealed class CategoriesController(ICategoryService service) : ControllerBase
 {
     [HttpGet]

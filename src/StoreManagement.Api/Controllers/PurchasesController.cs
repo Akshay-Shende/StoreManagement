@@ -5,7 +5,7 @@ using StoreManagement.Application.Interfaces;
 namespace StoreManagement.Api.Controllers;
 
 [ApiController]
-[Route("api/purchases")]
+[Route("api/v1/purchases")]
 public sealed class PurchasesController(IPurchaseService service) : ControllerBase
 {
     [HttpGet("{id:guid}")]

@@ -4,7 +4,8 @@
     "StoreManagement.Api": {
       "commandName": "Project",
       "dotnetRunMessages": true,
-      "launchBrowser": false,
+      "launchBrowser": true,
+      "launchUrl": "",
       "applicationUrl": "https://localhost:7240;http://localhost:5240",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
@@ -12,3 +13,4 @@
     }
   }
 }
+
