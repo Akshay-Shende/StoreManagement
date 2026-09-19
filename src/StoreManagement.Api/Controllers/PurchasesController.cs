@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using StoreManagement.Application.DTOs;
 using StoreManagement.Application.Interfaces;
@@ -6,6 +7,7 @@ namespace StoreManagement.Api.Controllers;
 
 [ApiController]
 [Route("api/v1/purchases")]
+[Authorize(Roles = "Admin,Manager")]
 public sealed class PurchasesController(IPurchaseService service) : ControllerBase
 {
     [HttpGet("{id:guid}")]
@@ -20,6 +22,14 @@ public sealed class PurchasesController(IPurchaseService service) : ControllerBa
     }
 
     [HttpPost("{id:guid}/receive")]
-    public async Task<ActionResult<PurchaseResponse>> Receive(Guid id, ReceivePurchaseRequest request, [FromHeader(Name = "X-User")] string? createdBy, CancellationToken cancellationToken) =>
-        (await service.ReceiveAsync(id, request, createdBy ?? "system", cancellationToken)) is { } result ? Ok(result) : NotFound();
+    public async Task<ActionResult<PurchaseResponse>> Receive(
+        Guid id,
+        ReceivePurchaseRequest request,
+        [FromHeader(Name = "X-User")] string? createdBy,
+        CancellationToken cancellationToken)
+    {
+        var actor = !string.IsNullOrWhiteSpace(createdBy) ? createdBy : (User.Identity?.Name ?? "system");
+        var result = await service.ReceiveAsync(id, request, actor, cancellationToken);
+        return result is not null ? Ok(result) : NotFound();
+    }
 }

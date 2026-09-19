@@ -18,6 +18,7 @@ public class StoreDbContext(DbContextOptions<StoreDbContext> options) : DbContex
     public DbSet<SaleItem> SaleItems => Set<SaleItem>();
     public DbSet<InventoryTransaction> InventoryTransactions => Set<InventoryTransaction>();
     public DbSet<StockAdjustment> StockAdjustments => Set<StockAdjustment>();
+    public DbSet<User> Users => Set<User>();
 
     public override int SaveChanges(bool acceptAllChangesOnSuccess)
     {
@@ -183,6 +184,33 @@ public class StoreDbContext(DbContextOptions<StoreDbContext> options) : DbContex
                 Name = "Grocery",
                 Description = "Default grocery category",
                 IsActive = true
+            });
+
+        modelBuilder.Entity<User>(entity =>
+        {
+            entity.HasKey(x => x.UserId);
+            entity.Property(x => x.Username).HasMaxLength(50).IsRequired();
+            entity.Property(x => x.Email).HasMaxLength(150).IsRequired();
+            entity.Property(x => x.PasswordHash).HasMaxLength(500).IsRequired();
+            entity.Property(x => x.FullName).HasMaxLength(150).IsRequired();
+            entity.Property(x => x.Role).HasConversion<string>().HasMaxLength(30).IsRequired();
+            entity.Property(x => x.RefreshToken).HasMaxLength(256);
+            entity.HasIndex(x => x.Username).IsUnique();
+            entity.HasIndex(x => x.Email).IsUnique();
+        });
+
+        var adminSalt = new byte[] { 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160 };
+        modelBuilder.Entity<User>().HasData(
+            new User
+            {
+                UserId = Guid.Parse("99999999-9999-9999-9999-999999999999"),
+                Username = "admin",
+                Email = "admin@store.com",
+                FullName = "System Administrator",
+                PasswordHash = StoreManagement.Infrastructure.Services.PasswordHasher.HashWithSalt("Admin@123456", adminSalt),
+                Role = UserRole.Admin,
+                IsActive = true,
+                CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc)
             });
     }
 }

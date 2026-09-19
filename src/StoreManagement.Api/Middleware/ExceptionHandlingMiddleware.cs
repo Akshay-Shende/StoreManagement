@@ -23,6 +23,10 @@ public sealed class ExceptionHandlingMiddleware(RequestDelegate next, ILogger<Ex
         {
             await WriteError(context, HttpStatusCode.Conflict, ex.Message);
         }
+        catch (UnauthorizedAccessException ex)
+        {
+            await WriteError(context, HttpStatusCode.Unauthorized, ex.Message);
+        }
         catch (Exception ex)
         {
             logger.LogError(ex, "Unhandled store management API error.");
