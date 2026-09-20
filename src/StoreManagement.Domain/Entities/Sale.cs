@@ -11,6 +11,7 @@ public class Sale
     public SaleStatus Status { get; set; } = SaleStatus.Draft;
     public PaymentStatus PaymentStatus { get; set; } = PaymentStatus.Pending;
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+    public string? ClientRequestId { get; set; }
 
     public Customer? Customer { get; set; }
     public ICollection<SaleItem> Items { get; set; } = new List<SaleItem>();

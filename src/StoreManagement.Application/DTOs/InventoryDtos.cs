@@ -27,6 +27,7 @@ public record StockAdjustmentResponse(
     decimal PhysicalQuantity,
     decimal Difference,
     string Reason,
+    string CreatedBy,
     string? ApprovedBy,
     bool IsApproved,
     DateTimeOffset CreatedAt,
@@ -37,7 +38,7 @@ public record CreateStockAdjustmentRequest(
     decimal PhysicalQuantity,
     string Reason);
 
-public record ApproveStockAdjustmentRequest(string ApprovedBy);
+public record ApproveStockAdjustmentRequest;
 
 public record InventoryMovementRequest(
     long ProductId,
@@ -52,3 +53,5 @@ public record DashboardResponse(
     int ExpiringBatches,
     int ExpiredBatches,
     decimal TodayGrossSales);
+
+public record InventoryReconciliationResponse(long ProductId, string ProductName, decimal ProductStock, decimal BatchStock, decimal LedgerStock, decimal BatchVariance, decimal LedgerVariance, bool IsConsistent);

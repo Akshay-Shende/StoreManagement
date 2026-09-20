@@ -9,6 +9,7 @@ public class InventoryTransaction
     public long? BatchId { get; set; }
     public InventoryTransactionType TransactionType { get; set; }
     public decimal QuantityDelta { get; set; }
+    public string? ReferenceType { get; set; }
     public long? ReferenceId { get; set; }
     public string? Reason { get; set; }
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;

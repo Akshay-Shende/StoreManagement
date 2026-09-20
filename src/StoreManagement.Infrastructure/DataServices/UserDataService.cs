@@ -20,6 +20,8 @@ public sealed class UserDataService(StoreDbContext db) : IUserDataService
             cancellationToken);
     }
 
+    public Task<User?> GetByRefreshTokenAsync(string refreshToken, CancellationToken cancellationToken) => db.Users.FirstOrDefaultAsync(x => x.RefreshToken == refreshToken, cancellationToken);
+
     public Task<bool> ExistsByUsernameOrEmailAsync(string username, string email, CancellationToken cancellationToken)
     {
         var normalizedUsername = username.Trim().ToLowerInvariant();

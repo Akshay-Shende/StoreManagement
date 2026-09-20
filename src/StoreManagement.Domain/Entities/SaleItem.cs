@@ -8,6 +8,8 @@ public class SaleItem
     public decimal Quantity { get; set; }
     public decimal UnitPrice { get; set; }
 
+    public ICollection<SaleItemBatch> BatchAllocations { get; set; } = new List<SaleItemBatch>();
+
     public Sale Sale { get; set; } = null!;
     public Product Product { get; set; } = null!;
 }

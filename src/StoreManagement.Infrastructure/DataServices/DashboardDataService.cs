@@ -16,6 +16,8 @@ public sealed class DashboardDataService(StoreDbContext db) : IDashboardDataServ
     public Task<int> CountLowStockProductsAsync(CancellationToken cancellationToken) =>
         db.Products.CountAsync(x => x.IsActive && x.CurrentStock <= x.ReorderLevel, cancellationToken);
 
+    // Business-day calculations should be performed with the configured store timezone.
+    // SQL Server stores UTC timestamps; DateOnly expiry values are treated as store-local dates.
     public Task<int> CountExpiringBatchesAsync(int days, CancellationToken cancellationToken)
     {
         var today = DateOnly.FromDateTime(DateTime.UtcNow);

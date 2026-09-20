@@ -7,7 +7,7 @@ namespace StoreManagement.Api.Controllers;
 
 [ApiController]
 [Route("api/v1/dashboard")]
-[Authorize(Roles = "Admin,Manager")]
+[Authorize]
 public sealed class DashboardController(IDashboardService service) : ControllerBase
 {
     [HttpGet]

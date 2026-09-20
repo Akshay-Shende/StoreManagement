@@ -14,6 +14,17 @@ using StoreManagement.Infrastructure.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.WithOrigins("http://localhost:4200", "https://localhost:4200")
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
+    });
+});
+
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
@@ -54,6 +65,8 @@ builder.Services.AddDbContext<StoreDbContext>(options => options.UseSqlServer(co
 
 var jwtSecret = builder.Configuration["JwtSettings:Secret"]
     ?? throw new InvalidOperationException("JwtSettings:Secret is missing.");
+if (jwtSecret.Length < 32)
+    throw new InvalidOperationException("JwtSettings:Secret must contain at least 32 characters.");
 var jwtIssuer = builder.Configuration["JwtSettings:Issuer"] ?? "StoreManagementApi";
 var jwtAudience = builder.Configuration["JwtSettings:Audience"] ?? "StoreManagementClient";
 
@@ -81,6 +94,13 @@ builder.Services.AddAuthentication(options =>
 });
 
 builder.Services.AddAuthorization();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddRateLimiter(options =>
+{
+    options.GlobalLimiter = System.Threading.RateLimiting.PartitionedRateLimiter.Create<HttpContext, string>(context =>
+        System.Threading.RateLimiting.RateLimitPartition.GetFixedWindowLimiter(context.Connection.RemoteIpAddress?.ToString() ?? "unknown", _ => new System.Threading.RateLimiting.FixedWindowRateLimiterOptions { PermitLimit = 120, Window = TimeSpan.FromMinutes(1), QueueLimit = 0 }));
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+});
 
 // Data Services
 builder.Services.AddScoped<IProductDataService, ProductDataService>();
@@ -91,6 +111,7 @@ builder.Services.AddScoped<ISaleDataService, SaleDataService>();
 builder.Services.AddScoped<IInventoryDataService, InventoryDataService>();
 builder.Services.AddScoped<IDashboardDataService, DashboardDataService>();
 builder.Services.AddScoped<IUserDataService, UserDataService>();
+builder.Services.AddScoped<ICustomerDataService, CustomerDataService>();
 
 // Domain / Business Services
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
@@ -104,6 +125,14 @@ builder.Services.AddScoped<ISaleService, SaleService>();
 builder.Services.AddScoped<IInventoryService, InventoryService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.AddScoped<IAiAssistantService, AiAssistantService>();
+builder.Services.AddScoped<IStoreOperationsDataService, StoreOperationsDataService>();
+builder.Services.AddScoped<IReportDataService, ReportDataService>();
+builder.Services.AddScoped<IAuditService, AuditService>();
+builder.Services.AddScoped<IReportService, ReportService>();
+builder.Services.AddScoped<IReturnService, ReturnService>();
+builder.Services.AddScoped<IUserAdminService, UserAdminService>();
+builder.Services.AddScoped<ICustomerService, CustomerService>();
+builder.Services.AddHostedService<InventoryAlertWorker>();
 
 var app = builder.Build();
 
@@ -116,11 +145,15 @@ app.UseSwaggerUI(c =>
     c.RoutePrefix = string.Empty;
 });
 app.UseHttpsRedirection();
+app.UseRateLimiter();
 
+app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-app.MapGet("/health", () => Results.Ok(new { status = "ok" }));
+app.MapGet("/health", () => Results.Ok(new { status = "ok", service = "StoreManagement.Api" }));
+app.MapGet("/live", () => Results.Ok(new { status = "live" }));
+app.MapGet("/ready", async (StoreDbContext db, CancellationToken ct) => await db.Database.CanConnectAsync(ct) ? Results.Ok(new { status = "ready", database = "ok" }) : Results.StatusCode(StatusCodes.Status503ServiceUnavailable));
 
 app.Run();

@@ -8,6 +8,15 @@ namespace StoreManagement.Infrastructure.DataServices;
 
 public sealed class PurchaseDataService(StoreDbContext db) : IPurchaseDataService
 {
+    public async Task<IReadOnlyCollection<Purchase>> GetAllAsync(CancellationToken cancellationToken) =>
+        await db.Purchases
+            .AsNoTracking()
+            .Include(x => x.Supplier)
+            .Include(x => x.Items)
+                .ThenInclude(x => x.Product)
+            .OrderByDescending(x => x.PurchaseDate)
+            .ToListAsync(cancellationToken);
+
     public Task<Purchase?> GetByIdAsync(long id, CancellationToken cancellationToken) =>
         db.Purchases
             .Include(x => x.Supplier)

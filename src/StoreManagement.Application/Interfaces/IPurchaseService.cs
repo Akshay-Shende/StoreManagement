@@ -1,10 +1,10 @@
 using StoreManagement.Application.DTOs;
-
 namespace StoreManagement.Application.Interfaces;
-
 public interface IPurchaseService
 {
-    Task<PurchaseResponse> CreateAsync(CreatePurchaseRequest request, CancellationToken cancellationToken);
+    Task<IReadOnlyCollection<PurchaseResponse>> GetAllAsync(CancellationToken cancellationToken);
+    Task<PurchaseResponse> CreateAsync(CreatePurchaseRequest request, string? clientRequestId, CancellationToken cancellationToken);
     Task<PurchaseResponse?> GetByIdAsync(long id, CancellationToken cancellationToken);
-    Task<PurchaseResponse?> ReceiveAsync(long id, ReceivePurchaseRequest request, string createdBy, CancellationToken cancellationToken);
+    Task<PurchaseResponse?> ReceiveAsync(long id, ReceivePurchaseRequest request, string createdBy, string? clientRequestId, CancellationToken cancellationToken);
+    Task<PurchaseResponse?> CancelAsync(long id, string actor, CancellationToken cancellationToken);
 }

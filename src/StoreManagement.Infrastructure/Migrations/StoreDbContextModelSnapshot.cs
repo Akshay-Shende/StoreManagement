@@ -22,6 +22,63 @@ namespace StoreManagement.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("StoreManagement.Domain.Entities.AuditLog", b =>
+                {
+                    b.Property<long>("AuditLogId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("AuditLogId"));
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Actor")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("AfterJson")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("BeforeJson")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CorrelationId")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("EntityId")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("EntityName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("IpAddress")
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<string>("Reason")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.HasKey("AuditLogId");
+
+                    b.HasIndex("Actor", "CreatedAt");
+
+                    b.HasIndex("EntityName", "EntityId", "CreatedAt");
+
+                    b.ToTable("AuditLogs");
+                });
+
             modelBuilder.Entity("StoreManagement.Domain.Entities.Batch", b =>
                 {
                     b.Property<long>("BatchId")
@@ -58,6 +115,12 @@ namespace StoreManagement.Migrations
                         .HasPrecision(18, 3)
                         .HasColumnType("decimal(18,3)");
 
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
                     b.HasKey("BatchId");
 
                     b.HasIndex("BatchNumber", "ProductId")
@@ -77,7 +140,8 @@ namespace StoreManagement.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("CategoryId"));
 
                     b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
@@ -131,6 +195,97 @@ namespace StoreManagement.Migrations
                     b.ToTable("Customers");
                 });
 
+            modelBuilder.Entity("StoreManagement.Domain.Entities.GoodsReceipt", b =>
+                {
+                    b.Property<long>("GoodsReceiptId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("GoodsReceiptId"));
+
+                    b.Property<string>("ClientRequestId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<long>("PurchaseId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset>("ReceivedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("ReceivedBy")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("SupplierInvoiceNumber")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("GoodsReceiptId");
+
+                    b.HasIndex("PurchaseId", "ReceivedAt");
+
+                    b.ToTable("GoodsReceipts");
+                });
+
+            modelBuilder.Entity("StoreManagement.Domain.Entities.GoodsReceiptItem", b =>
+                {
+                    b.Property<long>("GoodsReceiptItemId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("GoodsReceiptItemId"));
+
+                    b.Property<long>("GoodsReceiptId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("PurchaseItemId")
+                        .HasColumnType("bigint");
+
+                    b.Property<decimal>("Quantity")
+                        .HasPrecision(18, 3)
+                        .HasColumnType("decimal(18,3)");
+
+                    b.HasKey("GoodsReceiptItemId");
+
+                    b.HasIndex("GoodsReceiptId");
+
+                    b.HasIndex("PurchaseItemId");
+
+                    b.ToTable("GoodsReceiptItems");
+                });
+
+            modelBuilder.Entity("StoreManagement.Domain.Entities.GoodsReceiptItemBatch", b =>
+                {
+                    b.Property<long>("GoodsReceiptItemBatchId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("GoodsReceiptItemBatchId"));
+
+                    b.Property<long>("BatchId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("GoodsReceiptItemId")
+                        .HasColumnType("bigint");
+
+                    b.Property<decimal>("Quantity")
+                        .HasPrecision(18, 3)
+                        .HasColumnType("decimal(18,3)");
+
+                    b.HasKey("GoodsReceiptItemBatchId");
+
+                    b.HasIndex("BatchId");
+
+                    b.HasIndex("GoodsReceiptItemId");
+
+                    b.ToTable("GoodsReceiptItemBatches");
+                });
+
             modelBuilder.Entity("StoreManagement.Domain.Entities.InventoryTransaction", b =>
                 {
                     b.Property<long>("TransactionId")
@@ -164,6 +319,10 @@ namespace StoreManagement.Migrations
                     b.Property<long?>("ReferenceId")
                         .HasColumnType("bigint");
 
+                    b.Property<string>("ReferenceType")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
                     b.Property<string>("TransactionType")
                         .IsRequired()
                         .HasMaxLength(30)
@@ -171,13 +330,112 @@ namespace StoreManagement.Migrations
 
                     b.HasKey("TransactionId");
 
-                    b.HasIndex("ReferenceId");
-
                     b.HasIndex("BatchId", "CreatedAt");
 
                     b.HasIndex("ProductId", "CreatedAt");
 
+                    b.HasIndex("ReferenceType", "ReferenceId");
+
                     b.ToTable("InventoryTransactions");
+                });
+
+            modelBuilder.Entity("StoreManagement.Domain.Entities.Notification", b =>
+                {
+                    b.Property<long>("NotificationId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("NotificationId"));
+
+                    b.Property<long?>("BatchId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<long?>("ProductId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Severity")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("NotificationId");
+
+                    b.HasIndex("IsRead", "CreatedAt");
+
+                    b.ToTable("Notifications");
+                });
+
+            modelBuilder.Entity("StoreManagement.Domain.Entities.Payment", b =>
+                {
+                    b.Property<long>("PaymentId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("PaymentId"));
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("ClientRequestId")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("Method")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<DateTimeOffset>("PaidAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<long>("SaleId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<string>("TransactionReference")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("PaymentId");
+
+                    b.HasIndex("ClientRequestId")
+                        .IsUnique()
+                        .HasFilter("[ClientRequestId] IS NOT NULL");
+
+                    b.HasIndex("SaleId");
+
+                    b.ToTable("Payments");
                 });
 
             modelBuilder.Entity("StoreManagement.Domain.Entities.Product", b =>
@@ -222,6 +480,12 @@ namespace StoreManagement.Migrations
                     b.Property<bool>("RequiresBatchTracking")
                         .HasColumnType("bit");
 
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
                     b.Property<string>("SKU")
                         .HasMaxLength(80)
                         .HasColumnType("nvarchar(80)");
@@ -239,13 +503,13 @@ namespace StoreManagement.Migrations
 
                     b.HasIndex("Barcode")
                         .IsUnique()
-                        .HasFilter("Barcode IS NOT NULL");
+                        .HasFilter("[Barcode] IS NOT NULL");
 
                     b.HasIndex("CategoryId");
 
                     b.HasIndex("SKU")
                         .IsUnique()
-                        .HasFilter("SKU IS NOT NULL");
+                        .HasFilter("[SKU] IS NOT NULL");
 
                     b.HasIndex("Name", "IsActive");
 
@@ -263,6 +527,7 @@ namespace StoreManagement.Migrations
                             ReorderLevel = 10m,
                             ReorderQuantity = 50m,
                             RequiresBatchTracking = true,
+                            RowVersion = new byte[0],
                             SKU = "RICE-5KG",
                             SellingPrice = 300m,
                             Unit = "bag"
@@ -276,6 +541,10 @@ namespace StoreManagement.Migrations
                         .HasColumnType("bigint");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("PurchaseId"));
+
+                    b.Property<string>("ClientRequestId")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetimeoffset");
@@ -294,6 +563,10 @@ namespace StoreManagement.Migrations
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("PurchaseId");
+
+                    b.HasIndex("ClientRequestId")
+                        .IsUnique()
+                        .HasFilter("[ClientRequestId] IS NOT NULL");
 
                     b.HasIndex("PurchaseDate");
 
@@ -342,6 +615,95 @@ namespace StoreManagement.Migrations
                     b.ToTable("PurchaseItems");
                 });
 
+            modelBuilder.Entity("StoreManagement.Domain.Entities.Return", b =>
+                {
+                    b.Property<long>("ReturnId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("ReturnId"));
+
+                    b.Property<string>("ClientRequestId")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Condition")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<decimal>("RefundAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<long>("SaleId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.HasKey("ReturnId");
+
+                    b.HasIndex("ClientRequestId")
+                        .IsUnique()
+                        .HasFilter("[ClientRequestId] IS NOT NULL");
+
+                    b.HasIndex("SaleId");
+
+                    b.ToTable("Returns");
+                });
+
+            modelBuilder.Entity("StoreManagement.Domain.Entities.ReturnItem", b =>
+                {
+                    b.Property<long>("ReturnItemId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("ReturnItemId"));
+
+                    b.Property<long?>("BatchId")
+                        .HasColumnType("bigint");
+
+                    b.Property<decimal>("Quantity")
+                        .HasPrecision(18, 3)
+                        .HasColumnType("decimal(18,3)");
+
+                    b.Property<decimal>("RefundAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<long>("ReturnId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("SaleItemId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("ReturnItemId");
+
+                    b.HasIndex("BatchId");
+
+                    b.HasIndex("ReturnId");
+
+                    b.HasIndex("SaleItemId");
+
+                    b.ToTable("ReturnItems");
+                });
+
             modelBuilder.Entity("StoreManagement.Domain.Entities.Sale", b =>
                 {
                     b.Property<long>("SaleId")
@@ -349,6 +711,10 @@ namespace StoreManagement.Migrations
                         .HasColumnType("bigint");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("SaleId"));
+
+                    b.Property<string>("ClientRequestId")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetimeoffset");
@@ -370,6 +736,10 @@ namespace StoreManagement.Migrations
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("SaleId");
+
+                    b.HasIndex("ClientRequestId")
+                        .IsUnique()
+                        .HasFilter("[ClientRequestId] IS NOT NULL");
 
                     b.HasIndex("CustomerId");
 
@@ -409,6 +779,37 @@ namespace StoreManagement.Migrations
                     b.ToTable("SaleItems");
                 });
 
+            modelBuilder.Entity("StoreManagement.Domain.Entities.SaleItemBatch", b =>
+                {
+                    b.Property<long>("SaleItemBatchId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("SaleItemBatchId"));
+
+                    b.Property<long>("BatchId")
+                        .HasColumnType("bigint");
+
+                    b.Property<decimal>("Quantity")
+                        .HasPrecision(18, 3)
+                        .HasColumnType("decimal(18,3)");
+
+                    b.Property<long>("SaleItemId")
+                        .HasColumnType("bigint");
+
+                    b.Property<decimal>("UnitCost")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("SaleItemBatchId");
+
+                    b.HasIndex("BatchId");
+
+                    b.HasIndex("SaleItemId");
+
+                    b.ToTable("SaleItemBatches");
+                });
+
             modelBuilder.Entity("StoreManagement.Domain.Entities.StockAdjustment", b =>
                 {
                     b.Property<long>("AdjustmentId")
@@ -424,8 +825,17 @@ namespace StoreManagement.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("nvarchar(150)");
 
+                    b.Property<string>("ClientRequestId")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
 
                     b.Property<decimal>("Difference")
                         .HasPrecision(18, 3)
@@ -446,11 +856,21 @@ namespace StoreManagement.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
                     b.Property<decimal>("SystemQuantity")
                         .HasPrecision(18, 3)
                         .HasColumnType("decimal(18,3)");
 
                     b.HasKey("AdjustmentId");
+
+                    b.HasIndex("ClientRequestId")
+                        .IsUnique()
+                        .HasFilter("[ClientRequestId] IS NOT NULL");
 
                     b.HasIndex("ProductId", "CreatedAt");
 
@@ -466,7 +886,8 @@ namespace StoreManagement.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("SupplierId"));
 
                     b.Property<string>("Address")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<string>("Email")
                         .HasMaxLength(200)
@@ -573,6 +994,55 @@ namespace StoreManagement.Migrations
                     b.Navigation("Product");
                 });
 
+            modelBuilder.Entity("StoreManagement.Domain.Entities.GoodsReceipt", b =>
+                {
+                    b.HasOne("StoreManagement.Domain.Entities.Purchase", "Purchase")
+                        .WithMany()
+                        .HasForeignKey("PurchaseId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Purchase");
+                });
+
+            modelBuilder.Entity("StoreManagement.Domain.Entities.GoodsReceiptItem", b =>
+                {
+                    b.HasOne("StoreManagement.Domain.Entities.GoodsReceipt", "GoodsReceipt")
+                        .WithMany("Items")
+                        .HasForeignKey("GoodsReceiptId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("StoreManagement.Domain.Entities.PurchaseItem", "PurchaseItem")
+                        .WithMany()
+                        .HasForeignKey("PurchaseItemId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("GoodsReceipt");
+
+                    b.Navigation("PurchaseItem");
+                });
+
+            modelBuilder.Entity("StoreManagement.Domain.Entities.GoodsReceiptItemBatch", b =>
+                {
+                    b.HasOne("StoreManagement.Domain.Entities.Batch", "Batch")
+                        .WithMany()
+                        .HasForeignKey("BatchId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("StoreManagement.Domain.Entities.GoodsReceiptItem", "GoodsReceiptItem")
+                        .WithMany("Batches")
+                        .HasForeignKey("GoodsReceiptItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Batch");
+
+                    b.Navigation("GoodsReceiptItem");
+                });
+
             modelBuilder.Entity("StoreManagement.Domain.Entities.InventoryTransaction", b =>
                 {
                     b.HasOne("StoreManagement.Domain.Entities.Batch", "Batch")
@@ -589,6 +1059,17 @@ namespace StoreManagement.Migrations
                     b.Navigation("Batch");
 
                     b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("StoreManagement.Domain.Entities.Payment", b =>
+                {
+                    b.HasOne("StoreManagement.Domain.Entities.Sale", "Sale")
+                        .WithMany()
+                        .HasForeignKey("SaleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Sale");
                 });
 
             modelBuilder.Entity("StoreManagement.Domain.Entities.Product", b =>
@@ -639,6 +1120,43 @@ namespace StoreManagement.Migrations
                     b.Navigation("Purchase");
                 });
 
+            modelBuilder.Entity("StoreManagement.Domain.Entities.Return", b =>
+                {
+                    b.HasOne("StoreManagement.Domain.Entities.Sale", "Sale")
+                        .WithMany()
+                        .HasForeignKey("SaleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Sale");
+                });
+
+            modelBuilder.Entity("StoreManagement.Domain.Entities.ReturnItem", b =>
+                {
+                    b.HasOne("StoreManagement.Domain.Entities.Batch", "Batch")
+                        .WithMany()
+                        .HasForeignKey("BatchId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("StoreManagement.Domain.Entities.Return", "Return")
+                        .WithMany("Items")
+                        .HasForeignKey("ReturnId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("StoreManagement.Domain.Entities.SaleItem", "SaleItem")
+                        .WithMany()
+                        .HasForeignKey("SaleItemId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Batch");
+
+                    b.Navigation("Return");
+
+                    b.Navigation("SaleItem");
+                });
+
             modelBuilder.Entity("StoreManagement.Domain.Entities.Sale", b =>
                 {
                     b.HasOne("StoreManagement.Domain.Entities.Customer", "Customer")
@@ -666,6 +1184,25 @@ namespace StoreManagement.Migrations
                     b.Navigation("Product");
 
                     b.Navigation("Sale");
+                });
+
+            modelBuilder.Entity("StoreManagement.Domain.Entities.SaleItemBatch", b =>
+                {
+                    b.HasOne("StoreManagement.Domain.Entities.Batch", "Batch")
+                        .WithMany()
+                        .HasForeignKey("BatchId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("StoreManagement.Domain.Entities.SaleItem", "SaleItem")
+                        .WithMany("BatchAllocations")
+                        .HasForeignKey("SaleItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Batch");
+
+                    b.Navigation("SaleItem");
                 });
 
             modelBuilder.Entity("StoreManagement.Domain.Entities.StockAdjustment", b =>
@@ -696,6 +1233,16 @@ namespace StoreManagement.Migrations
                     b.Navigation("Sales");
                 });
 
+            modelBuilder.Entity("StoreManagement.Domain.Entities.GoodsReceipt", b =>
+                {
+                    b.Navigation("Items");
+                });
+
+            modelBuilder.Entity("StoreManagement.Domain.Entities.GoodsReceiptItem", b =>
+                {
+                    b.Navigation("Batches");
+                });
+
             modelBuilder.Entity("StoreManagement.Domain.Entities.Product", b =>
                 {
                     b.Navigation("Batches");
@@ -714,9 +1261,19 @@ namespace StoreManagement.Migrations
                     b.Navigation("Items");
                 });
 
+            modelBuilder.Entity("StoreManagement.Domain.Entities.Return", b =>
+                {
+                    b.Navigation("Items");
+                });
+
             modelBuilder.Entity("StoreManagement.Domain.Entities.Sale", b =>
                 {
                     b.Navigation("Items");
+                });
+
+            modelBuilder.Entity("StoreManagement.Domain.Entities.SaleItem", b =>
+                {
+                    b.Navigation("BatchAllocations");
                 });
 
             modelBuilder.Entity("StoreManagement.Domain.Entities.Supplier", b =>

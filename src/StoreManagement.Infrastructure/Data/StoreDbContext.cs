@@ -1,4 +1,3 @@
-
 using Microsoft.EntityFrameworkCore;
 using StoreManagement.Domain.Entities;
 using StoreManagement.Domain.Enums;
@@ -12,24 +11,41 @@ public class StoreDbContext(DbContextOptions<StoreDbContext> options) : DbContex
     public DbSet<Supplier> Suppliers => Set<Supplier>();
     public DbSet<Purchase> Purchases => Set<Purchase>();
     public DbSet<PurchaseItem> PurchaseItems => Set<PurchaseItem>();
+    public DbSet<GoodsReceipt> GoodsReceipts => Set<GoodsReceipt>();
+    public DbSet<GoodsReceiptItem> GoodsReceiptItems => Set<GoodsReceiptItem>();
+    public DbSet<GoodsReceiptItemBatch> GoodsReceiptItemBatches => Set<GoodsReceiptItemBatch>();
     public DbSet<Batch> Batches => Set<Batch>();
     public DbSet<Customer> Customers => Set<Customer>();
     public DbSet<Sale> Sales => Set<Sale>();
     public DbSet<SaleItem> SaleItems => Set<SaleItem>();
+    public DbSet<SaleItemBatch> SaleItemBatches => Set<SaleItemBatch>();
+    public DbSet<Payment> Payments => Set<Payment>();
+    public DbSet<Return> Returns => Set<Return>();
+    public DbSet<ReturnItem> ReturnItems => Set<ReturnItem>();
     public DbSet<InventoryTransaction> InventoryTransactions => Set<InventoryTransaction>();
     public DbSet<StockAdjustment> StockAdjustments => Set<StockAdjustment>();
     public DbSet<User> Users => Set<User>();
+    public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
+    public DbSet<Notification> Notifications => Set<Notification>();
 
     public override int SaveChanges(bool acceptAllChangesOnSuccess)
     {
         EnsureLedgerIsImmutable();
+        StampAuditTimestamps();
         return base.SaveChanges(acceptAllChangesOnSuccess);
     }
 
     public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
     {
         EnsureLedgerIsImmutable();
+        StampAuditTimestamps();
         return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+    }
+
+    private void StampAuditTimestamps()
+    {
+        foreach (var entry in ChangeTracker.Entries<AuditLog>().Where(e => e.State == EntityState.Added))
+            if (entry.Entity.CreatedAt == default) entry.Entity.CreatedAt = DateTimeOffset.UtcNow;
     }
 
     private void EnsureLedgerIsImmutable()
@@ -44,6 +60,7 @@ public class StoreDbContext(DbContextOptions<StoreDbContext> options) : DbContex
         {
             entity.HasKey(x => x.CategoryId);
             entity.Property(x => x.Name).HasMaxLength(150).IsRequired();
+            entity.Property(x => x.Description).HasMaxLength(500);
             entity.HasIndex(x => x.Name).IsUnique();
         });
 
@@ -59,9 +76,9 @@ public class StoreDbContext(DbContextOptions<StoreDbContext> options) : DbContex
             entity.Property(x => x.ReorderLevel).HasPrecision(18, 3);
             entity.Property(x => x.ReorderQuantity).HasPrecision(18, 3);
             entity.Property(x => x.CurrentStock).HasPrecision(18, 3);
-            // Use provider-agnostic filter expression (SQL fragment) for SQL Server
-            entity.HasIndex(x => x.SKU).IsUnique().HasFilter("SKU IS NOT NULL");
-            entity.HasIndex(x => x.Barcode).IsUnique().HasFilter("Barcode IS NOT NULL");
+            entity.Property(x => x.RowVersion).IsRowVersion().IsConcurrencyToken();
+            entity.HasIndex(x => x.SKU).IsUnique().HasFilter("[SKU] IS NOT NULL");
+            entity.HasIndex(x => x.Barcode).IsUnique().HasFilter("[Barcode] IS NOT NULL");
             entity.HasIndex(x => new { x.Name, x.IsActive });
             entity.HasOne(x => x.Category).WithMany(x => x.Products).HasForeignKey(x => x.CategoryId).OnDelete(DeleteBehavior.Restrict);
         });
@@ -72,6 +89,7 @@ public class StoreDbContext(DbContextOptions<StoreDbContext> options) : DbContex
             entity.Property(x => x.Name).HasMaxLength(200).IsRequired();
             entity.Property(x => x.Phone).HasMaxLength(30);
             entity.Property(x => x.Email).HasMaxLength(200);
+            entity.Property(x => x.Address).HasMaxLength(500);
             entity.Property(x => x.TaxRegistrationNumber).HasMaxLength(50);
             entity.HasIndex(x => x.Name);
         });
@@ -89,7 +107,9 @@ public class StoreDbContext(DbContextOptions<StoreDbContext> options) : DbContex
         {
             entity.HasKey(x => x.PurchaseId);
             entity.Property(x => x.TotalAmount).HasPrecision(18, 2);
+            entity.Property(x => x.ClientRequestId).HasMaxLength(100);
             entity.HasIndex(x => x.PurchaseDate);
+            entity.HasIndex(x => x.ClientRequestId).IsUnique().HasFilter("[ClientRequestId] IS NOT NULL");
             entity.HasOne(x => x.Supplier).WithMany(x => x.Purchases).HasForeignKey(x => x.SupplierId).OnDelete(DeleteBehavior.Restrict);
         });
 
@@ -105,12 +125,39 @@ public class StoreDbContext(DbContextOptions<StoreDbContext> options) : DbContex
             entity.HasIndex(x => x.ProductId);
         });
 
+        modelBuilder.Entity<GoodsReceipt>(entity =>
+        {
+            entity.HasKey(x => x.GoodsReceiptId);
+            entity.Property(x => x.ReceivedBy).HasMaxLength(150).IsRequired();
+            entity.Property(x => x.SupplierInvoiceNumber).HasMaxLength(100);
+            entity.Property(x => x.Notes).HasMaxLength(1000);
+            entity.HasIndex(x => new { x.PurchaseId, x.ReceivedAt });
+            entity.HasOne(x => x.Purchase).WithMany().HasForeignKey(x => x.PurchaseId).OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<GoodsReceiptItem>(entity =>
+        {
+            entity.HasKey(x => x.GoodsReceiptItemId);
+            entity.Property(x => x.Quantity).HasPrecision(18, 3);
+            entity.HasOne(x => x.GoodsReceipt).WithMany(x => x.Items).HasForeignKey(x => x.GoodsReceiptId).OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(x => x.PurchaseItem).WithMany().HasForeignKey(x => x.PurchaseItemId).OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<GoodsReceiptItemBatch>(entity =>
+        {
+            entity.HasKey(x => x.GoodsReceiptItemBatchId);
+            entity.Property(x => x.Quantity).HasPrecision(18, 3);
+            entity.HasOne(x => x.GoodsReceiptItem).WithMany(x => x.Batches).HasForeignKey(x => x.GoodsReceiptItemId).OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(x => x.Batch).WithMany().HasForeignKey(x => x.BatchId).OnDelete(DeleteBehavior.Restrict);
+        });
+
         modelBuilder.Entity<Batch>(entity =>
         {
             entity.HasKey(x => x.BatchId);
             entity.Property(x => x.BatchNumber).HasMaxLength(100).IsRequired();
             entity.Property(x => x.ReceivedQuantity).HasPrecision(18, 3);
             entity.Property(x => x.AvailableQuantity).HasPrecision(18, 3);
+            entity.Property(x => x.RowVersion).IsRowVersion().IsConcurrencyToken();
             entity.HasIndex(x => new { x.ProductId, x.ExpiryDate });
             entity.HasIndex(x => new { x.BatchNumber, x.ProductId }).IsUnique();
             entity.HasOne(x => x.Product).WithMany(x => x.Batches).HasForeignKey(x => x.ProductId).OnDelete(DeleteBehavior.Restrict);
@@ -120,7 +167,9 @@ public class StoreDbContext(DbContextOptions<StoreDbContext> options) : DbContex
         {
             entity.HasKey(x => x.SaleId);
             entity.Property(x => x.TotalAmount).HasPrecision(18, 2);
+            entity.Property(x => x.ClientRequestId).HasMaxLength(100);
             entity.HasIndex(x => x.SaleDate);
+            entity.HasIndex(x => x.ClientRequestId).IsUnique().HasFilter("[ClientRequestId] IS NOT NULL");
             entity.HasOne(x => x.Customer).WithMany(x => x.Sales).HasForeignKey(x => x.CustomerId).OnDelete(DeleteBehavior.SetNull);
         });
 
@@ -134,16 +183,64 @@ public class StoreDbContext(DbContextOptions<StoreDbContext> options) : DbContex
             entity.HasIndex(x => x.ProductId);
         });
 
+        modelBuilder.Entity<SaleItemBatch>(entity =>
+        {
+            entity.HasKey(x => x.SaleItemBatchId);
+            entity.Property(x => x.Quantity).HasPrecision(18, 3);
+            entity.Property(x => x.UnitCost).HasPrecision(18, 2);
+            entity.HasOne(x => x.SaleItem).WithMany(x => x.BatchAllocations).HasForeignKey(x => x.SaleItemId).OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(x => x.Batch).WithMany().HasForeignKey(x => x.BatchId).OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<Payment>(entity =>
+        {
+            entity.HasKey(x => x.PaymentId);
+            entity.Property(x => x.Amount).HasPrecision(18, 2);
+            entity.Property(x => x.Method).HasMaxLength(30).IsRequired();
+            entity.Property(x => x.Status).HasMaxLength(30).IsRequired();
+            entity.Property(x => x.TransactionReference).HasMaxLength(100);
+            entity.Property(x => x.ClientRequestId).HasMaxLength(100);
+            entity.Property(x => x.CreatedBy).HasMaxLength(150).IsRequired();
+            entity.HasIndex(x => x.SaleId);
+            entity.HasIndex(x => x.ClientRequestId).IsUnique().HasFilter("[ClientRequestId] IS NOT NULL");
+            entity.HasOne(x => x.Sale).WithMany().HasForeignKey(x => x.SaleId).OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<Return>(entity =>
+        {
+            entity.HasKey(x => x.ReturnId);
+            entity.Property(x => x.Reason).HasMaxLength(500).IsRequired();
+            entity.Property(x => x.Condition).HasMaxLength(30).IsRequired();
+            entity.Property(x => x.Status).HasMaxLength(30).IsRequired();
+            entity.Property(x => x.RefundAmount).HasPrecision(18, 2);
+            entity.Property(x => x.ClientRequestId).HasMaxLength(100);
+            entity.Property(x => x.CreatedBy).HasMaxLength(150).IsRequired();
+            entity.HasIndex(x => x.SaleId);
+            entity.HasIndex(x => x.ClientRequestId).IsUnique().HasFilter("[ClientRequestId] IS NOT NULL");
+            entity.HasOne(x => x.Sale).WithMany().HasForeignKey(x => x.SaleId).OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<ReturnItem>(entity =>
+        {
+            entity.HasKey(x => x.ReturnItemId);
+            entity.Property(x => x.Quantity).HasPrecision(18, 3);
+            entity.Property(x => x.RefundAmount).HasPrecision(18, 2);
+            entity.HasOne(x => x.Return).WithMany(x => x.Items).HasForeignKey(x => x.ReturnId).OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(x => x.SaleItem).WithMany().HasForeignKey(x => x.SaleItemId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne(x => x.Batch).WithMany().HasForeignKey(x => x.BatchId).OnDelete(DeleteBehavior.SetNull);
+        });
+
         modelBuilder.Entity<InventoryTransaction>(entity =>
         {
             entity.HasKey(x => x.TransactionId);
             entity.Property(x => x.TransactionType).HasConversion<string>().HasMaxLength(30);
             entity.Property(x => x.QuantityDelta).HasPrecision(18, 3);
+            entity.Property(x => x.ReferenceType).HasMaxLength(50);
             entity.Property(x => x.Reason).HasMaxLength(500);
             entity.Property(x => x.CreatedBy).HasMaxLength(150).IsRequired();
             entity.HasIndex(x => new { x.ProductId, x.CreatedAt });
             entity.HasIndex(x => new { x.BatchId, x.CreatedAt });
-            entity.HasIndex(x => x.ReferenceId);
+            entity.HasIndex(x => new { x.ReferenceType, x.ReferenceId });
             entity.HasOne(x => x.Product).WithMany(x => x.InventoryTransactions).HasForeignKey(x => x.ProductId).OnDelete(DeleteBehavior.Restrict);
             entity.HasOne(x => x.Batch).WithMany(x => x.InventoryTransactions).HasForeignKey(x => x.BatchId).OnDelete(DeleteBehavior.SetNull);
         });
@@ -155,36 +252,14 @@ public class StoreDbContext(DbContextOptions<StoreDbContext> options) : DbContex
             entity.Property(x => x.PhysicalQuantity).HasPrecision(18, 3);
             entity.Property(x => x.Difference).HasPrecision(18, 3);
             entity.Property(x => x.Reason).HasMaxLength(500).IsRequired();
+            entity.Property(x => x.CreatedBy).HasMaxLength(150).IsRequired();
             entity.Property(x => x.ApprovedBy).HasMaxLength(150);
+            entity.Property(x => x.ClientRequestId).HasMaxLength(100);
+            entity.Property(x => x.RowVersion).IsRowVersion().IsConcurrencyToken();
             entity.HasIndex(x => new { x.ProductId, x.CreatedAt });
+            entity.HasIndex(x => x.ClientRequestId).IsUnique().HasFilter("[ClientRequestId] IS NOT NULL");
             entity.HasOne(x => x.Product).WithMany(x => x.StockAdjustments).HasForeignKey(x => x.ProductId).OnDelete(DeleteBehavior.Restrict);
         });
-
-        modelBuilder.Entity<Product>().HasData(
-            new Product
-            {
-                ProductId = 1L,
-                CategoryId = 1L,
-                Name = "Demo Rice 5kg",
-                SKU = "RICE-5KG",
-                Unit = "bag",
-                PurchasePrice = 250,
-                SellingPrice = 300,
-                ReorderLevel = 10,
-                ReorderQuantity = 50,
-                CurrentStock = 0,
-                RequiresBatchTracking = true,
-                IsActive = true
-            });
-
-        modelBuilder.Entity<Category>().HasData(
-            new Category
-            {
-                CategoryId = 1L,
-                Name = "Grocery",
-                Description = "Default grocery category",
-                IsActive = true
-            });
 
         modelBuilder.Entity<User>(entity =>
         {
@@ -199,18 +274,43 @@ public class StoreDbContext(DbContextOptions<StoreDbContext> options) : DbContex
             entity.HasIndex(x => x.Email).IsUnique();
         });
 
+        modelBuilder.Entity<AuditLog>(entity =>
+        {
+            entity.HasKey(x => x.AuditLogId);
+            entity.Property(x => x.Action).HasMaxLength(100).IsRequired();
+            entity.Property(x => x.EntityName).HasMaxLength(100).IsRequired();
+            entity.Property(x => x.EntityId).HasMaxLength(100);
+            entity.Property(x => x.Actor).HasMaxLength(150).IsRequired();
+            entity.Property(x => x.CorrelationId).HasMaxLength(100);
+            entity.Property(x => x.IpAddress).HasMaxLength(64);
+            entity.Property(x => x.Reason).HasMaxLength(500);
+            entity.HasIndex(x => new { x.EntityName, x.EntityId, x.CreatedAt });
+            entity.HasIndex(x => new { x.Actor, x.CreatedAt });
+        });
+
+        modelBuilder.Entity<Notification>(entity =>
+        {
+            entity.HasKey(x => x.NotificationId);
+            entity.Property(x => x.Type).HasMaxLength(50).IsRequired();
+            entity.Property(x => x.Title).HasMaxLength(200).IsRequired();
+            entity.Property(x => x.Message).HasMaxLength(1000).IsRequired();
+            entity.Property(x => x.Severity).HasMaxLength(30).IsRequired();
+            entity.HasIndex(x => new { x.IsRead, x.CreatedAt });
+        });
+
+        modelBuilder.Entity<Category>().HasData(new Category { CategoryId = 1L, Name = "Grocery", Description = "Default grocery category", IsActive = true });
+        modelBuilder.Entity<Product>().HasData(new Product
+        {
+            ProductId = 1L, CategoryId = 1L, Name = "Demo Rice 5kg", SKU = "RICE-5KG", Unit = "bag",
+            PurchasePrice = 250, SellingPrice = 300, ReorderLevel = 10, ReorderQuantity = 50,
+            CurrentStock = 0, RequiresBatchTracking = true, IsActive = true
+        });
         var adminSalt = new byte[] { 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160 };
-        modelBuilder.Entity<User>().HasData(
-            new User
-            {
-                UserId = 1L,
-                Username = "admin",
-                Email = "admin@store.com",
-                FullName = "System Administrator",
-                PasswordHash = StoreManagement.Infrastructure.Services.PasswordHasher.HashWithSalt("Admin@123456", adminSalt),
-                Role = UserRole.Admin,
-                IsActive = true,
-                CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc)
-            });
+        modelBuilder.Entity<User>().HasData(new User
+        {
+            UserId = 1L, Username = "admin", Email = "admin@store.com", FullName = "System Administrator",
+            PasswordHash = StoreManagement.Infrastructure.Services.PasswordHasher.HashWithSalt("Admin@123456", adminSalt),
+            Role = UserRole.Admin, IsActive = true, CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+        });
     }
 }

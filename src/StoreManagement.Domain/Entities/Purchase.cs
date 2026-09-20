@@ -10,6 +10,7 @@ public class Purchase
     public PurchaseStatus Status { get; set; } = PurchaseStatus.Draft;
     public decimal TotalAmount { get; set; }
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+    public string? ClientRequestId { get; set; }
 
     public Supplier Supplier { get; set; } = null!;
     public ICollection<PurchaseItem> Items { get; set; } = new List<PurchaseItem>();

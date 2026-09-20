@@ -11,6 +11,7 @@ public class Batch
     public DateOnly? ExpiryDate { get; set; }
     public DateTimeOffset ReceivedAt { get; set; } = DateTimeOffset.UtcNow;
     public bool IsSellable { get; set; } = true;
+    public byte[] RowVersion { get; set; } = [];
 
     public Product Product { get; set; } = null!;
     public ICollection<PurchaseItem> PurchaseItems { get; set; } = new List<PurchaseItem>();

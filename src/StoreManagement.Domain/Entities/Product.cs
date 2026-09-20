@@ -15,6 +15,7 @@ public class Product
     public decimal CurrentStock { get; set; }
     public bool RequiresBatchTracking { get; set; }
     public bool IsActive { get; set; } = true;
+    public byte[] RowVersion { get; set; } = [];
 
     public Category Category { get; set; } = null!;
     public ICollection<Batch> Batches { get; set; } = new List<Batch>();
