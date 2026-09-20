@@ -4,7 +4,7 @@ public record CreateProductRequest(
     string Name,
     string? Sku,
     string? Barcode,
-    Guid CategoryId,
+    long CategoryId,
     string Unit,
     decimal PurchasePrice,
     decimal SellingPrice,
@@ -16,7 +16,7 @@ public record UpdateProductRequest(
     string Name,
     string? Sku,
     string? Barcode,
-    Guid CategoryId,
+    long CategoryId,
     string Unit,
     decimal PurchasePrice,
     decimal SellingPrice,
@@ -26,11 +26,11 @@ public record UpdateProductRequest(
     bool IsActive);
 
 public record ProductResponse(
-    Guid ProductId,
+    long ProductId,
     string Name,
     string? Sku,
     string? Barcode,
-    Guid CategoryId,
+    long CategoryId,
     string CategoryName,
     string Unit,
     decimal PurchasePrice,

@@ -8,7 +8,7 @@ namespace StoreManagement.Infrastructure.DataServices;
 
 public sealed class SaleDataService(StoreDbContext db) : ISaleDataService
 {
-    public Task<Sale?> GetByIdAsync(Guid id, CancellationToken cancellationToken) =>
+    public Task<Sale?> GetByIdAsync(long id, CancellationToken cancellationToken) =>
         db.Sales
             .Include(x => x.Customer)
             .Include(x => x.Items)

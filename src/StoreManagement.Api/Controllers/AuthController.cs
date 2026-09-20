@@ -27,11 +27,11 @@ public sealed class AuthController(IAuthService authService) : ControllerBase
     }
 
     [HttpPost("logout")]
-    [Authorize]
+   // [Authorize]
     public async Task<ActionResult<MessageResponse>> LogOut(CancellationToken cancellationToken)
     {
         var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (Guid.TryParse(userIdClaim, out var userId))
+        if (long.TryParse(userIdClaim, out var userId))
         {
             await authService.LogoutAsync(userId, cancellationToken);
         }
@@ -52,7 +52,7 @@ public sealed class AuthController(IAuthService authService) : ControllerBase
     public async Task<ActionResult<UserInfoResponse>> GetCurrentUser(CancellationToken cancellationToken)
     {
         var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (!Guid.TryParse(userIdClaim, out var userId))
+        if (!long.TryParse(userIdClaim, out var userId))
             return Unauthorized(new { error = "Invalid token claims." });
 
         var user = await authService.GetCurrentUserAsync(userId, cancellationToken);

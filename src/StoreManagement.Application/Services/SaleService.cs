@@ -89,7 +89,7 @@ public sealed class SaleService(
         return Map(sale);
     }
 
-    public async Task<SaleResponse?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
+    public async Task<SaleResponse?> GetByIdAsync(long id, CancellationToken cancellationToken)
     {
         var sale = await saleData.GetByIdAsync(id, cancellationToken);
         return sale is null ? null : Map(sale);

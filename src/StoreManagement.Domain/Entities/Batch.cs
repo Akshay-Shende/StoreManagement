@@ -2,8 +2,8 @@ namespace StoreManagement.Domain.Entities;
 
 public class Batch
 {
-    public Guid BatchId { get; set; } = Guid.NewGuid();
-    public Guid ProductId { get; set; }
+    public long BatchId { get; set; }
+    public long ProductId { get; set; }
     public string BatchNumber { get; set; } = string.Empty;
     public decimal ReceivedQuantity { get; set; }
     public decimal AvailableQuantity { get; set; }

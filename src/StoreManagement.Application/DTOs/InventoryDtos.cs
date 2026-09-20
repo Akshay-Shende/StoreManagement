@@ -1,7 +1,7 @@
 namespace StoreManagement.Application.DTOs;
 
 public record InventoryResponse(
-    Guid ProductId,
+    long ProductId,
     string ProductName,
     string? Sku,
     string Unit,
@@ -11,8 +11,8 @@ public record InventoryResponse(
     bool IsLowStock);
 
 public record ExpiringBatchResponse(
-    Guid BatchId,
-    Guid ProductId,
+    long BatchId,
+    long ProductId,
     string ProductName,
     string BatchNumber,
     decimal AvailableQuantity,
@@ -20,8 +20,8 @@ public record ExpiringBatchResponse(
     int DaysUntilExpiry);
 
 public record StockAdjustmentResponse(
-    Guid AdjustmentId,
-    Guid ProductId,
+    long AdjustmentId,
+    long ProductId,
     string ProductName,
     decimal SystemQuantity,
     decimal PhysicalQuantity,
@@ -33,15 +33,15 @@ public record StockAdjustmentResponse(
     DateTimeOffset? ApprovedAt);
 
 public record CreateStockAdjustmentRequest(
-    Guid ProductId,
+    long ProductId,
     decimal PhysicalQuantity,
     string Reason);
 
 public record ApproveStockAdjustmentRequest(string ApprovedBy);
 
 public record InventoryMovementRequest(
-    Guid ProductId,
-    Guid? BatchId,
+    long ProductId,
+    long? BatchId,
     decimal Quantity,
     string Reason);
 

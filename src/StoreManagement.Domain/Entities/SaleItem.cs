@@ -2,9 +2,9 @@ namespace StoreManagement.Domain.Entities;
 
 public class SaleItem
 {
-    public Guid SaleItemId { get; set; } = Guid.NewGuid();
-    public Guid SaleId { get; set; }
-    public Guid ProductId { get; set; }
+    public long SaleItemId { get; set; }
+    public long SaleId { get; set; }
+    public long ProductId { get; set; }
     public decimal Quantity { get; set; }
     public decimal UnitPrice { get; set; }
 

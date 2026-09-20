@@ -5,6 +5,6 @@ namespace StoreManagement.Application.Interfaces;
 public interface IPurchaseService
 {
     Task<PurchaseResponse> CreateAsync(CreatePurchaseRequest request, CancellationToken cancellationToken);
-    Task<PurchaseResponse?> GetByIdAsync(Guid id, CancellationToken cancellationToken);
-    Task<PurchaseResponse?> ReceiveAsync(Guid id, ReceivePurchaseRequest request, string createdBy, CancellationToken cancellationToken);
+    Task<PurchaseResponse?> GetByIdAsync(long id, CancellationToken cancellationToken);
+    Task<PurchaseResponse?> ReceiveAsync(long id, ReceivePurchaseRequest request, string createdBy, CancellationToken cancellationToken);
 }

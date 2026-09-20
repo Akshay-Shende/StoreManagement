@@ -10,8 +10,8 @@ namespace StoreManagement.Api.Controllers;
 [Authorize(Roles = "Admin,Manager,Cashier")]
 public sealed class SalesController(ISaleService service) : ControllerBase
 {
-    [HttpGet("{id:guid}")]
-    public async Task<ActionResult<SaleResponse>> GetById(Guid id, CancellationToken cancellationToken) =>
+    [HttpGet("{id:long}")]
+    public async Task<ActionResult<SaleResponse>> GetById(long id, CancellationToken cancellationToken) =>
         (await service.GetByIdAsync(id, cancellationToken)) is { } result ? Ok(result) : NotFound();
 
     [HttpPost]

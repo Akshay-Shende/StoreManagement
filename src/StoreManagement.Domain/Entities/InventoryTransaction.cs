@@ -4,12 +4,12 @@ namespace StoreManagement.Domain.Entities;
 
 public class InventoryTransaction
 {
-    public Guid TransactionId { get; set; } = Guid.NewGuid();
-    public Guid ProductId { get; set; }
-    public Guid? BatchId { get; set; }
+    public long TransactionId { get; set; }
+    public long ProductId { get; set; }
+    public long? BatchId { get; set; }
     public InventoryTransactionType TransactionType { get; set; }
     public decimal QuantityDelta { get; set; }
-    public Guid? ReferenceId { get; set; }
+    public long? ReferenceId { get; set; }
     public string? Reason { get; set; }
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
     public string CreatedBy { get; set; } = "system";

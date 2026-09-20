@@ -2,11 +2,11 @@ namespace StoreManagement.Domain.Entities;
 
 public class Product
 {
-    public Guid ProductId { get; set; } = Guid.NewGuid();
+    public long ProductId { get; set; }
     public string Name { get; set; } = string.Empty;
     public string? SKU { get; set; }
     public string? Barcode { get; set; }
-    public Guid CategoryId { get; set; }
+    public long CategoryId { get; set; }
     public string Unit { get; set; } = "unit";
     public decimal PurchasePrice { get; set; }
     public decimal SellingPrice { get; set; }

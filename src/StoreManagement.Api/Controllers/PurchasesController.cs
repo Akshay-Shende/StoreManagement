@@ -10,8 +10,8 @@ namespace StoreManagement.Api.Controllers;
 [Authorize(Roles = "Admin,Manager")]
 public sealed class PurchasesController(IPurchaseService service) : ControllerBase
 {
-    [HttpGet("{id:guid}")]
-    public async Task<ActionResult<PurchaseResponse>> GetById(Guid id, CancellationToken cancellationToken) =>
+    [HttpGet("{id:long}")]
+    public async Task<ActionResult<PurchaseResponse>> GetById(long id, CancellationToken cancellationToken) =>
         (await service.GetByIdAsync(id, cancellationToken)) is { } result ? Ok(result) : NotFound();
 
     [HttpPost]
@@ -21,9 +21,9 @@ public sealed class PurchasesController(IPurchaseService service) : ControllerBa
         return CreatedAtAction(nameof(GetById), new { id = result.PurchaseId }, result);
     }
 
-    [HttpPost("{id:guid}/receive")]
+    [HttpPost("{id:long}/receive")]
     public async Task<ActionResult<PurchaseResponse>> Receive(
-        Guid id,
+        long id,
         ReceivePurchaseRequest request,
         [FromHeader(Name = "X-User")] string? createdBy,
         CancellationToken cancellationToken)

@@ -10,7 +10,7 @@ public interface IInventoryService
     Task<IReadOnlyCollection<ExpiringBatchResponse>> GetExpiringAsync(int days, CancellationToken cancellationToken);
     Task<IReadOnlyCollection<ExpiringBatchResponse>> GetExpiredAsync(CancellationToken cancellationToken);
     Task<StockAdjustmentResponse> CreateAdjustmentAsync(CreateStockAdjustmentRequest request, CancellationToken cancellationToken);
-    Task<StockAdjustmentResponse?> ApproveAdjustmentAsync(Guid id, ApproveStockAdjustmentRequest request, string createdBy, CancellationToken cancellationToken);
-    Task<ExpiringBatchResponse?> ExpireBatchAsync(Guid batchId, string createdBy, CancellationToken cancellationToken);
+    Task<StockAdjustmentResponse?> ApproveAdjustmentAsync(long id, ApproveStockAdjustmentRequest request, string createdBy, CancellationToken cancellationToken);
+    Task<ExpiringBatchResponse?> ExpireBatchAsync(long batchId, string createdBy, CancellationToken cancellationToken);
     Task<InventoryResponse?> RecordMovementAsync(InventoryTransactionType movementType, InventoryMovementRequest request, string createdBy, CancellationToken cancellationToken);
 }

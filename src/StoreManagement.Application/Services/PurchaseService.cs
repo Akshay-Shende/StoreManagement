@@ -41,13 +41,13 @@ public sealed class PurchaseService(
         return Map(purchase, products);
     }
 
-    public async Task<PurchaseResponse?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
+    public async Task<PurchaseResponse?> GetByIdAsync(long id, CancellationToken cancellationToken)
     {
         var purchase = await purchaseData.GetByIdAsync(id, cancellationToken);
         return purchase is null ? null : Map(purchase, purchase.Items.ToDictionary(x => x.ProductId, x => x.Product));
     }
 
-    public async Task<PurchaseResponse?> ReceiveAsync(Guid id, ReceivePurchaseRequest request, string createdBy, CancellationToken cancellationToken)
+    public async Task<PurchaseResponse?> ReceiveAsync(long id, ReceivePurchaseRequest request, string createdBy, CancellationToken cancellationToken)
     {
         if (request.Items.Count == 0) throw new ArgumentException("At least one receipt item is required.");
         var purchase = await purchaseData.GetByIdAsync(id, cancellationToken);
@@ -115,7 +115,7 @@ public sealed class PurchaseService(
         return await GetByIdAsync(id, cancellationToken);
     }
 
-    private static PurchaseResponse Map(Purchase purchase, IReadOnlyDictionary<Guid, Product> products) =>
+    private static PurchaseResponse Map(Purchase purchase, IReadOnlyDictionary<long, Product> products) =>
         new(purchase.PurchaseId, purchase.SupplierId, purchase.Supplier.Name, purchase.PurchaseDate, purchase.Status.ToString(), purchase.TotalAmount,
             purchase.Items.Select(x => new PurchaseItemResponse(x.PurchaseItemId, x.ProductId, products[x.ProductId].Name, x.Quantity, x.UnitPrice, x.BatchId)).ToList());
 

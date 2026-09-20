@@ -14,8 +14,8 @@ public sealed class ProductsController(IProductService service) : ControllerBase
     public async Task<ActionResult<IReadOnlyCollection<ProductResponse>>> GetAll(CancellationToken cancellationToken) =>
         Ok(await service.GetAllAsync(cancellationToken));
 
-    [HttpGet("{id:guid}")]
-    public async Task<ActionResult<ProductResponse>> GetById(Guid id, CancellationToken cancellationToken) =>
+    [HttpGet("{id:long}")]
+    public async Task<ActionResult<ProductResponse>> GetById(long id, CancellationToken cancellationToken) =>
         (await service.GetByIdAsync(id, cancellationToken)) is { } result ? Ok(result) : NotFound();
 
     [HttpPost]
@@ -26,8 +26,8 @@ public sealed class ProductsController(IProductService service) : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = result.ProductId }, result);
     }
 
-    [HttpPut("{id:guid}")]
+    [HttpPut("{id:long}")]
     [Authorize(Roles = "Admin,Manager")]
-    public async Task<ActionResult<ProductResponse>> Update(Guid id, UpdateProductRequest request, CancellationToken cancellationToken) =>
+    public async Task<ActionResult<ProductResponse>> Update(long id, UpdateProductRequest request, CancellationToken cancellationToken) =>
         (await service.UpdateAsync(id, request, cancellationToken)) is { } result ? Ok(result) : NotFound();
 }

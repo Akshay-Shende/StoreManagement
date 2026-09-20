@@ -24,9 +24,11 @@ namespace StoreManagement.Migrations
 
             modelBuilder.Entity("StoreManagement.Domain.Entities.Batch", b =>
                 {
-                    b.Property<Guid>("BatchId")
+                    b.Property<long>("BatchId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("BatchId"));
 
                     b.Property<decimal>("AvailableQuantity")
                         .HasPrecision(18, 3)
@@ -46,8 +48,8 @@ namespace StoreManagement.Migrations
                     b.Property<DateOnly?>("ManufacturingDate")
                         .HasColumnType("date");
 
-                    b.Property<Guid>("ProductId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<long>("ProductId")
+                        .HasColumnType("bigint");
 
                     b.Property<DateTimeOffset>("ReceivedAt")
                         .HasColumnType("datetimeoffset");
@@ -68,9 +70,11 @@ namespace StoreManagement.Migrations
 
             modelBuilder.Entity("StoreManagement.Domain.Entities.Category", b =>
                 {
-                    b.Property<Guid>("CategoryId")
+                    b.Property<long>("CategoryId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("CategoryId"));
 
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
@@ -93,7 +97,7 @@ namespace StoreManagement.Migrations
                     b.HasData(
                         new
                         {
-                            CategoryId = new Guid("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                            CategoryId = 1L,
                             Description = "Default grocery category",
                             IsActive = true,
                             Name = "Grocery"
@@ -102,9 +106,11 @@ namespace StoreManagement.Migrations
 
             modelBuilder.Entity("StoreManagement.Domain.Entities.Customer", b =>
                 {
-                    b.Property<Guid>("CustomerId")
+                    b.Property<long>("CustomerId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("CustomerId"));
 
                     b.Property<string>("Email")
                         .HasMaxLength(200)
@@ -127,12 +133,14 @@ namespace StoreManagement.Migrations
 
             modelBuilder.Entity("StoreManagement.Domain.Entities.InventoryTransaction", b =>
                 {
-                    b.Property<Guid>("TransactionId")
+                    b.Property<long>("TransactionId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("bigint");
 
-                    b.Property<Guid?>("BatchId")
-                        .HasColumnType("uniqueidentifier");
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("TransactionId"));
+
+                    b.Property<long?>("BatchId")
+                        .HasColumnType("bigint");
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetimeoffset");
@@ -142,8 +150,8 @@ namespace StoreManagement.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("nvarchar(150)");
 
-                    b.Property<Guid>("ProductId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<long>("ProductId")
+                        .HasColumnType("bigint");
 
                     b.Property<decimal>("QuantityDelta")
                         .HasPrecision(18, 3)
@@ -153,8 +161,8 @@ namespace StoreManagement.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<Guid?>("ReferenceId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<long?>("ReferenceId")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("TransactionType")
                         .IsRequired()
@@ -174,16 +182,18 @@ namespace StoreManagement.Migrations
 
             modelBuilder.Entity("StoreManagement.Domain.Entities.Product", b =>
                 {
-                    b.Property<Guid>("ProductId")
+                    b.Property<long>("ProductId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("ProductId"));
 
                     b.Property<string>("Barcode")
                         .HasMaxLength(80)
                         .HasColumnType("nvarchar(80)");
 
-                    b.Property<Guid>("CategoryId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<long>("CategoryId")
+                        .HasColumnType("bigint");
 
                     b.Property<decimal>("CurrentStock")
                         .HasPrecision(18, 3)
@@ -244,8 +254,8 @@ namespace StoreManagement.Migrations
                     b.HasData(
                         new
                         {
-                            ProductId = new Guid("11111111-1111-1111-1111-111111111111"),
-                            CategoryId = new Guid("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                            ProductId = 1L,
+                            CategoryId = 1L,
                             CurrentStock = 0m,
                             IsActive = true,
                             Name = "Demo Rice 5kg",
@@ -261,9 +271,11 @@ namespace StoreManagement.Migrations
 
             modelBuilder.Entity("StoreManagement.Domain.Entities.Purchase", b =>
                 {
-                    b.Property<Guid>("PurchaseId")
+                    b.Property<long>("PurchaseId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("PurchaseId"));
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetimeoffset");
@@ -274,8 +286,8 @@ namespace StoreManagement.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
-                    b.Property<Guid>("SupplierId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<long>("SupplierId")
+                        .HasColumnType("bigint");
 
                     b.Property<decimal>("TotalAmount")
                         .HasPrecision(18, 2)
@@ -292,18 +304,20 @@ namespace StoreManagement.Migrations
 
             modelBuilder.Entity("StoreManagement.Domain.Entities.PurchaseItem", b =>
                 {
-                    b.Property<Guid>("PurchaseItemId")
+                    b.Property<long>("PurchaseItemId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("bigint");
 
-                    b.Property<Guid?>("BatchId")
-                        .HasColumnType("uniqueidentifier");
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("PurchaseItemId"));
 
-                    b.Property<Guid>("ProductId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<long?>("BatchId")
+                        .HasColumnType("bigint");
 
-                    b.Property<Guid>("PurchaseId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<long>("ProductId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("PurchaseId")
+                        .HasColumnType("bigint");
 
                     b.Property<decimal>("Quantity")
                         .HasPrecision(18, 3)
@@ -330,15 +344,17 @@ namespace StoreManagement.Migrations
 
             modelBuilder.Entity("StoreManagement.Domain.Entities.Sale", b =>
                 {
-                    b.Property<Guid>("SaleId")
+                    b.Property<long>("SaleId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("SaleId"));
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<Guid?>("CustomerId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<long?>("CustomerId")
+                        .HasColumnType("bigint");
 
                     b.Property<int>("PaymentStatus")
                         .HasColumnType("int");
@@ -364,19 +380,21 @@ namespace StoreManagement.Migrations
 
             modelBuilder.Entity("StoreManagement.Domain.Entities.SaleItem", b =>
                 {
-                    b.Property<Guid>("SaleItemId")
+                    b.Property<long>("SaleItemId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("bigint");
 
-                    b.Property<Guid>("ProductId")
-                        .HasColumnType("uniqueidentifier");
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("SaleItemId"));
+
+                    b.Property<long>("ProductId")
+                        .HasColumnType("bigint");
 
                     b.Property<decimal>("Quantity")
                         .HasPrecision(18, 3)
                         .HasColumnType("decimal(18,3)");
 
-                    b.Property<Guid>("SaleId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<long>("SaleId")
+                        .HasColumnType("bigint");
 
                     b.Property<decimal>("UnitPrice")
                         .HasPrecision(18, 2)
@@ -393,9 +411,11 @@ namespace StoreManagement.Migrations
 
             modelBuilder.Entity("StoreManagement.Domain.Entities.StockAdjustment", b =>
                 {
-                    b.Property<Guid>("AdjustmentId")
+                    b.Property<long>("AdjustmentId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("AdjustmentId"));
 
                     b.Property<DateTimeOffset?>("ApprovedAt")
                         .HasColumnType("datetimeoffset");
@@ -418,8 +438,8 @@ namespace StoreManagement.Migrations
                         .HasPrecision(18, 3)
                         .HasColumnType("decimal(18,3)");
 
-                    b.Property<Guid>("ProductId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<long>("ProductId")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("Reason")
                         .IsRequired()
@@ -439,9 +459,11 @@ namespace StoreManagement.Migrations
 
             modelBuilder.Entity("StoreManagement.Domain.Entities.Supplier", b =>
                 {
-                    b.Property<Guid>("SupplierId")
+                    b.Property<long>("SupplierId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("SupplierId"));
 
                     b.Property<string>("Address")
                         .HasColumnType("nvarchar(max)");
@@ -472,9 +494,11 @@ namespace StoreManagement.Migrations
 
             modelBuilder.Entity("StoreManagement.Domain.Entities.User", b =>
                 {
-                    b.Property<Guid>("UserId")
+                    b.Property<long>("UserId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("UserId"));
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -527,7 +551,7 @@ namespace StoreManagement.Migrations
                     b.HasData(
                         new
                         {
-                            UserId = new Guid("99999999-9999-9999-9999-999999999999"),
+                            UserId = 1L,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Email = "admin@store.com",
                             FullName = "System Administrator",

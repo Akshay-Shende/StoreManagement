@@ -2,8 +2,8 @@ namespace StoreManagement.Domain.Entities;
 
 public class StockAdjustment
 {
-    public Guid AdjustmentId { get; set; } = Guid.NewGuid();
-    public Guid ProductId { get; set; }
+    public long AdjustmentId { get; set; }
+    public long ProductId { get; set; }
     public decimal SystemQuantity { get; set; }
     public decimal PhysicalQuantity { get; set; }
     public decimal Difference { get; set; }

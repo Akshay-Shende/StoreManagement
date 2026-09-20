@@ -4,9 +4,9 @@ namespace StoreManagement.Domain.Entities;
 
 public class Sale
 {
-    public Guid SaleId { get; set; } = Guid.NewGuid();
+    public long SaleId { get; set; }
     public DateTimeOffset SaleDate { get; set; } = DateTimeOffset.UtcNow;
-    public Guid? CustomerId { get; set; }
+    public long? CustomerId { get; set; }
     public decimal TotalAmount { get; set; }
     public SaleStatus Status { get; set; } = SaleStatus.Draft;
     public PaymentStatus PaymentStatus { get; set; } = PaymentStatus.Pending;

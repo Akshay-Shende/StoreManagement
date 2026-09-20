@@ -36,10 +36,10 @@ public sealed class InventoryController(IInventoryService service) : ControllerB
         CancellationToken cancellationToken) =>
         Ok(await service.CreateAdjustmentAsync(request, cancellationToken));
 
-    [HttpPost("adjustments/{id:guid}/approve")]
+    [HttpPost("adjustments/{id:long}/approve")]
     [Authorize(Roles = "Admin,Manager")]
     public async Task<ActionResult<StockAdjustmentResponse>> ApproveAdjustment(
-        Guid id,
+        long id,
         ApproveStockAdjustmentRequest request,
         [FromHeader(Name = "X-User")] string? createdBy,
         CancellationToken cancellationToken)
@@ -49,10 +49,10 @@ public sealed class InventoryController(IInventoryService service) : ControllerB
         return result is not null ? Ok(result) : NotFound();
     }
 
-    [HttpPost("batches/{id:guid}/expire")]
+    [HttpPost("batches/{id:long}/expire")]
     [Authorize(Roles = "Admin,Manager")]
     public async Task<ActionResult<ExpiringBatchResponse>> ExpireBatch(
-        Guid id,
+        long id,
         [FromHeader(Name = "X-User")] string? createdBy,
         CancellationToken cancellationToken)
     {

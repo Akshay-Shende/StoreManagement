@@ -9,7 +9,7 @@ public sealed class UserDataService(StoreDbContext db) : IUserDataService
 {
     public IQueryable<User> Query() => db.Users;
 
-    public Task<User?> GetByIdAsync(Guid id, CancellationToken cancellationToken) =>
+    public Task<User?> GetByIdAsync(long id, CancellationToken cancellationToken) =>
         db.Users.FirstOrDefaultAsync(x => x.UserId == id, cancellationToken);
 
     public Task<User?> GetByUsernameOrEmailAsync(string usernameOrEmail, CancellationToken cancellationToken)

@@ -8,7 +8,7 @@ namespace StoreManagement.Infrastructure.DataServices;
 
 public sealed class PurchaseDataService(StoreDbContext db) : IPurchaseDataService
 {
-    public Task<Purchase?> GetByIdAsync(Guid id, CancellationToken cancellationToken) =>
+    public Task<Purchase?> GetByIdAsync(long id, CancellationToken cancellationToken) =>
         db.Purchases
             .Include(x => x.Supplier)
             .Include(x => x.Items)

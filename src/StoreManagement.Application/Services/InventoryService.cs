@@ -61,7 +61,7 @@ public sealed class InventoryService(IInventoryDataService data) : IInventorySer
         return Map(adjustment, product.Name);
     }
 
-    public async Task<StockAdjustmentResponse?> ApproveAdjustmentAsync(Guid id, ApproveStockAdjustmentRequest request, string createdBy, CancellationToken cancellationToken)
+    public async Task<StockAdjustmentResponse?> ApproveAdjustmentAsync(long id, ApproveStockAdjustmentRequest request, string createdBy, CancellationToken cancellationToken)
     {
         var adjustment = await data.GetAdjustmentAsync(id, cancellationToken);
         if (adjustment is null) return null;
@@ -93,7 +93,7 @@ public sealed class InventoryService(IInventoryDataService data) : IInventorySer
         return await GetAdjustmentResponseAsync(id, cancellationToken);
     }
 
-    public async Task<ExpiringBatchResponse?> ExpireBatchAsync(Guid batchId, string createdBy, CancellationToken cancellationToken)
+    public async Task<ExpiringBatchResponse?> ExpireBatchAsync(long batchId, string createdBy, CancellationToken cancellationToken)
     {
         var batch = await data.GetBatchAsync(batchId, cancellationToken);
         if (batch is null) return null;
@@ -166,7 +166,7 @@ public sealed class InventoryService(IInventoryDataService data) : IInventorySer
         return new InventoryResponse(product.ProductId, product.Name, product.SKU, product.Unit, product.CurrentStock, product.ReorderLevel, product.ReorderQuantity, product.CurrentStock <= product.ReorderLevel);
     }
 
-    private async Task<StockAdjustmentResponse?> GetAdjustmentResponseAsync(Guid id, CancellationToken cancellationToken) =>
+    private async Task<StockAdjustmentResponse?> GetAdjustmentResponseAsync(long id, CancellationToken cancellationToken) =>
         await data.QueryAdjustments().AsNoTracking().Where(x => x.AdjustmentId == id).Select(x => new StockAdjustmentResponse(x.AdjustmentId, x.ProductId, x.Product.Name,
             x.SystemQuantity, x.PhysicalQuantity, x.Difference, x.Reason, x.ApprovedBy, x.IsApproved, x.CreatedAt, x.ApprovedAt)).FirstOrDefaultAsync(cancellationToken);
 

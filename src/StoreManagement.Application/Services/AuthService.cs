@@ -29,7 +29,6 @@ public sealed class AuthService(
 
         var user = new User
         {
-            UserId = Guid.NewGuid(),
             Username = request.Username.Trim(),
             Email = request.Email.Trim().ToLowerInvariant(),
             FullName = request.FullName.Trim(),
@@ -84,7 +83,7 @@ public sealed class AuthService(
         );
     }
 
-    public async Task LogoutAsync(Guid userId, CancellationToken cancellationToken)
+    public async Task LogoutAsync(long userId, CancellationToken cancellationToken)
     {
         var user = await userDataService.GetByIdAsync(userId, cancellationToken);
         if (user is not null)
@@ -105,7 +104,7 @@ public sealed class AuthService(
             throw new ArgumentException("Invalid access token.");
 
         var userIdClaim = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (!Guid.TryParse(userIdClaim, out var userId))
+        if (!long.TryParse(userIdClaim, out var userId))
             throw new ArgumentException("Invalid user identifier in token.");
 
         var user = await userDataService.GetByIdAsync(userId, cancellationToken);
@@ -131,7 +130,7 @@ public sealed class AuthService(
         );
     }
 
-    public async Task<UserInfoResponse?> GetCurrentUserAsync(Guid userId, CancellationToken cancellationToken)
+    public async Task<UserInfoResponse?> GetCurrentUserAsync(long userId, CancellationToken cancellationToken)
     {
         var user = await userDataService.GetByIdAsync(userId, cancellationToken);
         return user is null

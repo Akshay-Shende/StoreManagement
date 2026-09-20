@@ -163,8 +163,8 @@ public class StoreDbContext(DbContextOptions<StoreDbContext> options) : DbContex
         modelBuilder.Entity<Product>().HasData(
             new Product
             {
-                ProductId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
-                CategoryId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                ProductId = 1L,
+                CategoryId = 1L,
                 Name = "Demo Rice 5kg",
                 SKU = "RICE-5KG",
                 Unit = "bag",
@@ -180,7 +180,7 @@ public class StoreDbContext(DbContextOptions<StoreDbContext> options) : DbContex
         modelBuilder.Entity<Category>().HasData(
             new Category
             {
-                CategoryId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                CategoryId = 1L,
                 Name = "Grocery",
                 Description = "Default grocery category",
                 IsActive = true
@@ -203,7 +203,7 @@ public class StoreDbContext(DbContextOptions<StoreDbContext> options) : DbContex
         modelBuilder.Entity<User>().HasData(
             new User
             {
-                UserId = Guid.Parse("99999999-9999-9999-9999-999999999999"),
+                UserId = 1L,
                 Username = "admin",
                 Email = "admin@store.com",
                 FullName = "System Administrator",

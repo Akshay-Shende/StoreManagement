@@ -13,10 +13,10 @@ public sealed class InventoryDataService(StoreDbContext db) : IInventoryDataServ
     public IQueryable<InventoryTransaction> QueryTransactions() => db.InventoryTransactions;
     public IQueryable<StockAdjustment> QueryAdjustments() => db.StockAdjustments.Include(x => x.Product);
 
-    public Task<Product?> GetProductAsync(Guid productId, CancellationToken cancellationToken) =>
+    public Task<Product?> GetProductAsync(long productId, CancellationToken cancellationToken) =>
         db.Products.FirstOrDefaultAsync(x => x.ProductId == productId, cancellationToken);
 
-    public Task<Batch?> GetBatchAsync(Guid batchId, CancellationToken cancellationToken) =>
+    public Task<Batch?> GetBatchAsync(long batchId, CancellationToken cancellationToken) =>
         db.Batches.FirstOrDefaultAsync(x => x.BatchId == batchId, cancellationToken);
 
     public async Task AddBatchAsync(Batch batch, CancellationToken cancellationToken) =>
@@ -28,7 +28,7 @@ public sealed class InventoryDataService(StoreDbContext db) : IInventoryDataServ
     public async Task AddAdjustmentAsync(StockAdjustment adjustment, CancellationToken cancellationToken) =>
         await db.StockAdjustments.AddAsync(adjustment, cancellationToken);
 
-    public Task<StockAdjustment?> GetAdjustmentAsync(Guid adjustmentId, CancellationToken cancellationToken) =>
+    public Task<StockAdjustment?> GetAdjustmentAsync(long adjustmentId, CancellationToken cancellationToken) =>
         QueryAdjustments().FirstOrDefaultAsync(x => x.AdjustmentId == adjustmentId, cancellationToken);
 
     public async Task ExecuteInTransactionAsync(Func<CancellationToken, Task> operation, CancellationToken cancellationToken)

@@ -1,14 +1,14 @@
 namespace StoreManagement.Application.DTOs;
 
-public record CreatePurchaseItemRequest(Guid ProductId, decimal Quantity, decimal UnitPrice);
+public record CreatePurchaseItemRequest(long ProductId, decimal Quantity, decimal UnitPrice);
 
 public record CreatePurchaseRequest(
-    Guid SupplierId,
+    long SupplierId,
     DateTimeOffset? PurchaseDate,
     IReadOnlyCollection<CreatePurchaseItemRequest> Items);
 
 public record ReceivePurchaseItemRequest(
-    Guid PurchaseItemId,
+    long PurchaseItemId,
     decimal ReceivedQuantity,
     string? BatchNumber,
     DateOnly? ManufacturingDate,
@@ -17,8 +17,8 @@ public record ReceivePurchaseItemRequest(
 public record ReceivePurchaseRequest(IReadOnlyCollection<ReceivePurchaseItemRequest> Items);
 
 public record PurchaseResponse(
-    Guid PurchaseId,
-    Guid SupplierId,
+    long PurchaseId,
+    long SupplierId,
     string SupplierName,
     DateTimeOffset PurchaseDate,
     string Status,
@@ -26,9 +26,9 @@ public record PurchaseResponse(
     IReadOnlyCollection<PurchaseItemResponse> Items);
 
 public record PurchaseItemResponse(
-    Guid PurchaseItemId,
-    Guid ProductId,
+    long PurchaseItemId,
+    long ProductId,
     string ProductName,
     decimal Quantity,
     decimal UnitPrice,
-    Guid? BatchId);
+    long? BatchId);

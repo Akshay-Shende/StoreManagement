@@ -8,7 +8,7 @@ public record CreateSupplierRequest(
     string? TaxRegistrationNumber);
 
 public record SupplierResponse(
-    Guid SupplierId,
+    long SupplierId,
     string Name,
     string? Phone,
     string? Email,

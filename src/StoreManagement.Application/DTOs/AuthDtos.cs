@@ -28,7 +28,7 @@ public sealed record AuthResponse(
 );
 
 public sealed record UserInfoResponse(
-    Guid UserId,
+    long UserId,
     string Username,
     string Email,
     string FullName,

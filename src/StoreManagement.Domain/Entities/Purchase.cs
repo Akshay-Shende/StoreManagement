@@ -4,8 +4,8 @@ namespace StoreManagement.Domain.Entities;
 
 public class Purchase
 {
-    public Guid PurchaseId { get; set; } = Guid.NewGuid();
-    public Guid SupplierId { get; set; }
+    public long PurchaseId { get; set; }
+    public long SupplierId { get; set; }
     public DateTimeOffset PurchaseDate { get; set; } = DateTimeOffset.UtcNow;
     public PurchaseStatus Status { get; set; } = PurchaseStatus.Draft;
     public decimal TotalAmount { get; set; }
